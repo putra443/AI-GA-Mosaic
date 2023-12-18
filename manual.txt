@@ -1,0 +1,25 @@
+chromosome : 
+
+
+
+
+ide putra : 
+1 board direpresentasikan dengan array 2 dimensi besar 5x5
+contoh kasus : 
+2,abu null,abu null,abu null,abu null,abu
+null,abu null,abu 3,abu null,abu 2,abu
+1,abu null,abu null,abu 1,abu 0,abu
+null,abu 4,abu null,abu 3,abu null,abu
+null,abu null,abu 5,abu null,abu null,abu
+
+
+
+
+
+ide ben :
+board size = 5x5
+untuk 1 board dari 100 nilai untuk fitness
+setiap kotak akan dibagi nilai fitnessnya, semakin mendekati hasil benar, semakin kecil fitness yang berkurang
+jadi kalau misalkan kotak yang dipilih itu salah, akan diliat dari kemungkinan jarak benarnya
+semakin jauh jarak benarnya semakin besar fitness yang dikurangi dari total 100 nilai
+misalkan board 5x5 = 25 kotak
