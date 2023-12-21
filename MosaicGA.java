@@ -1,43 +1,46 @@
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MosaicGA {
-    Random myRand;
+    Random MyRand;
     public int maxPopulationSize;
     public double elitismPct;
-    public double mutationRate;
     public double crossoverRate;
+    public double mutationRate;
     public int totalGeneration;
-    int maxFitness;
+    String[][] inputMosaic;
+    KoordinatAngka[] koordinatAngka;
 
-    public MosaicGA(Random myRand, int totalGeneration, int maxPopulationSize,
-    double elitismPct, double mutationRate, double crossoverRate, MosaicBox[][] mosaic, int maxFitness) { 
-        this.myRand = myRand;
+    public MosaicGA(Random MyRand, int totalGeneration, int maxPopulationSize, double elitismPct,
+                    double crossoverRate, double mutationRate, String[][] inputMosaic,KoordinatAngka[] koordinatAngka) {
+        this.MyRand = MyRand;
         this.totalGeneration = totalGeneration;
         this.maxPopulationSize = maxPopulationSize;
         this.elitismPct = elitismPct;
-        this.mutationRate = mutationRate;
         this.crossoverRate = crossoverRate;
-        this.maxFitness = maxFitness;
+        this.mutationRate = mutationRate;
+        this.inputMosaic = inputMosaic;
+        this.koordinatAngka = koordinatAngka;
     }
-
-    public Individual run(){
+    public Individual run() {
         int generation = 1;
-        Population currentPopulation = new Population(myRand, this.maxFitness, this.maxPopulationSize, this.elitismPct);
-        currentPopulation.randomPopulation();
-        currentPopulation.computeAllFitnesses();
+        Population currentPop = new Population(MyRand,this.inputMosaic, this.maxPopulationSize, this.elitismPct, this.koordinatAngka);
+        currentPop.randomPopulation();
+        currentPop.computeAllFitnesses();
+        //System.out.println(currentPop);
         while (terminate(generation)==false) {
         	//System.out.println("Gen : "+generation+" Best: "+currentPop.getBestIdv().fitness);
-            Population newPop = currentPopulation.getNewPopulationWElit();
+            Population newPop = currentPop.getNewPopulationWElit();
             //System.out.println(newPop);
             while (newPop.isFilled()==false) {
             	//System.out.println("fill");
-                Individual[] parents = currentPopulation.selectParent();
+                Individual[] parents = currentPop.selectParent();
                 //System.out.println(parents[0]);
                 //System.out.println(parents[1]);
-                if (this.myRand.nextDouble()<this.crossoverRate) {
+                if (this.MyRand.nextDouble()<this.crossoverRate) {
                 	//System.out.println("crossed");
                     Individual child = parents[0].doCrossOver(parents[1]);
-                    if (this.myRand.nextDouble()<this.mutationRate) {
+                    if (this.MyRand.nextDouble()<this.mutationRate) {
                         //System.out.println("mutate");
                         child.doMutation();
                     }
@@ -46,12 +49,12 @@ public class MosaicGA {
                 //else System.out.println("not crossed");
             }
             generation++;
-            currentPopulation = newPop;
-            currentPopulation.computeAllFitnesses();
+            currentPop = newPop;
+            currentPop.computeAllFitnesses();
             //System.out.println(currentPop);
             //report pop
         }
-        return currentPopulation.getBestIdv();
+        return currentPop.getBestIdv();
     }
 
     public boolean terminate(int generation){

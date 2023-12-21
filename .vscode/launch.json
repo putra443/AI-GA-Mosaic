@@ -6,17 +6,17 @@
     "configurations": [
         {
             "type": "java",
-            "name": "ArrayMerger",
+            "name": "CekTetangga",
             "request": "launch",
-            "mainClass": "ArrayMerger",
-            "projectName": "AI-GA-Mosaic_2de99e30"
+            "mainClass": "CekTetangga",
+            "projectName": "GAMosaic_157252d7"
         },
         {
             "type": "java",
-            "name": "NeighborsChecker",
+            "name": "Main",
             "request": "launch",
-            "mainClass": "NeighborsChecker",
-            "projectName": "AI-GA-Mosaic_2de99e30"
+            "mainClass": "Main",
+            "projectName": "GAMosaic_157252d7"
         },
         {
             "name": "Java",

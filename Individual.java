@@ -1,155 +1,159 @@
-/*
-kelas individual untuk : 
-Mewakili individu dalam populasi.
-Setiap individu memiliki kromosom biner, nilai kebugaran (fitness), dan properti lainnya.
-Berisi metode untuk menetapkan nilai kebugaran, melakukan mutasi, dan crossover (crossover dua titik dilakukan).
-*/
-
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.Random;
-
-import javax.swing.text.html.Option;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Individual implements Comparable<Individual> {
-    public MosaicBox[][] chromosome;
+    public String[][] chromosome;
+    public KoordinatAngka[] koordinatAngka;
     public int fitness;
-    public Random Myrand;
+    public Random myRand;
     public double parentProbability;
 
-    // individual ini buat random pertama value warnanya antara abu sama hitam
     public Individual(Random myRand) {
+        this.myRand = myRand;
         String optionValue = "abu,hitam";
         String[] option = optionValue.split(",");
-        this.Myrand = myRand;
+        this.chromosome = new String[5][5];
         for (int i = 0; i < this.chromosome.length; i++) {
-            for (int j = 0; j < chromosome[i].length; j++) {
-                this.chromosome[i][j].warna = option[this.Myrand.nextInt(option.length)];
-            }
-        }
-        this.fitness = 0;
-        this.parentProbability = 0;
-    }
-
-    public Individual(Random myRand, MosaicBox[][] chromosome) {
-        this.Myrand = myRand;
-        this.chromosome = chromosome;
-        this.fitness = 0;
-        this.parentProbability = 0;
-    }
-
-    // setFitness bikin algoritma buat cek 9 kotak radiusnya, kudu mikir jadi
-    // gw tinggalin dulu
-    public int setFitness(int maxFitness) {
-        for (int i = 0; i < chromosome.length; i++) {
             for (int j = 0; j < this.chromosome[i].length; j++) {
-                if (this.chromosome[i][j].angka != null) {
-                    int numRows = this.chromosome.length;
-                    int numCols = this.chromosome[0].length;
-                    int counterHitam = 0;
-                    int[][] directions = {
-                            { -1, -1 }, { -1, 0 }, { -1, 1 },
-                            { 0, -1 }, { 0, 1 },
-                            { 1, -1 }, { 1, 0 }, { 1, 1 }
-                    };
+                String warna = option[this.myRand.nextInt(option.length)];
+                this.chromosome[i][j] = warna;
+            }
+        }
+        this.fitness = 0;
+        this.parentProbability = 0;
+        this.koordinatAngka = koordinatAngka;
+    }
 
-                    for (int[] direction : directions) {
-                        int newRow = i + direction[0];
-                        int newCol = j + direction[1];
+    public Individual(Random myRand, KoordinatAngka[] koordinatAngka) {
+        this.myRand = myRand;
+        this.fitness = 0;
+        this.parentProbability = 0;
+        this.koordinatAngka = koordinatAngka;
+    }
 
-                        if (newRow >= 0 && newRow < numRows && newCol >= 0 && newCol < numCols) {
-                            String warnaTetangga = this.chromosome[newRow][newCol].warna;
-                            if (warnaTetangga == "hitam") {
-                                counterHitam++;
-                            }
-                        }
-                    }
-                    if (counterHitam > Integer.parseInt(this.chromosome[i][j].angka)) {
-                        this.chromosome[i][j].value_fitness = "-1";
-                        this.fitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
-                    } else if (counterHitam < Integer.parseInt(this.chromosome[i][j].angka)) {
-                        this.chromosome[i][j].value_fitness = "0";
-                        this.fitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
-                    } else {
-                        this.chromosome[i][j].value_fitness = "1";
-                        this.fitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
+    public int setFitness(String[][] inputMosaic, KoordinatAngka[] koordinats, int maxFitness) {
+        int fitnessAngka = 0;
+        for (KoordinatAngka koordinat : koordinats) {
+            int tempHitam = 0;
+            int numRows = this.chromosome.length;
+            int numCols = this.chromosome[0].length;
+
+            // Define relative indices for neighbors (horizontal, vertical, and diagonal)
+            int[][] directions = {
+                    { -1, -1 }, { -1, 0 }, { -1, 1 },
+                    { 0, -1 }, { 0, 0 }, { 0, 1 },
+                    { 1, -1 }, { 1, 0 }, { 1, 1 }
+            };
+
+            for (int[] direction : directions) {
+                int newRow = koordinat.baris + direction[0];
+                int newCol = koordinat.kolom + direction[1];
+
+                // Check if the new indices are within bounds
+                if (newRow >= 0 && newRow < numRows && newCol >= 0 && newCol < numCols) {
+                    String neighborValue = this.chromosome[newRow][newCol];
+                    // System.out.println(neighborValue);
+
+                    if (neighborValue.equals("hitam")) {
+                        tempHitam += 1;
                     }
                 }
             }
+            if (tempHitam > koordinat.angka) {
+                this.fitness = -1;
+            }
+            // } else if (tempHitam < koordinat.angka) {
+            // this.fitness += 0;
+            // }
+            else if (tempHitam == koordinat.angka) {
+                this.fitness += 1;
+            }
         }
-        return this.fitness;
+        // System.out.println(this.fitness);
+        if (this.fitness > koordinats.length) {
+            return this.fitness = -1;
+        } else
+            return this.fitness;
+        // return this.fitness;
     }
 
-    public void doMutation(){
-        for(int i=0;i<this.chromosome.length;i++){
-            for(int j=0;j<this.chromosome[0].length;j++){
-                if(this.chromosome[i][j].warna=="hitam"){
-                    this.chromosome[i][j].warna="abu";
-                }
-                else{
-                    this.chromosome[i][j].warna="hitam";
+    public void doMutation() {
+        for (int i = 0; i < this.chromosome.length; i++) {
+            for (int j = 0; j < this.chromosome[0].length; j++) {
+                if (this.chromosome[i][j] == "hitam") {
+                    this.chromosome[i][j] = "abu";
+                } else {
+                    this.chromosome[i][j] = "hitam";
                 }
             }
         }
     }
 
-    // buat algoritma buat crossover kaya cara yang uda di sepakatin, random angka
-    // buat milih baris, trus dari nol sampe baris itu diambil dari child 1,
-    // kebawahnya
-    // diambil dari child 2
     public Individual doCrossOver(Individual other) {
         int panjangBaris = this.chromosome.length;
         int panjangKolom = this.chromosome[0].length;
-        int indexBarisPivot = this.Myrand.nextInt(panjangBaris);
+        int indexBarisPivot = this.myRand.nextInt(panjangBaris);
 
-        MosaicBox[][] chromosomeChild1 = new MosaicBox[panjangBaris][panjangKolom];
-        MosaicBox[][] chromosomeChild2 = new MosaicBox[panjangBaris][panjangKolom];
+        String[][] chromosomeChild1 = new String[5][5];
+        String[][] chromosomeChild2 = new String[5][5];
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                chromosomeChild1[i][j] = "abu";
+                chromosomeChild2[i][j] = "abu";
+            }
+        }
 
-        Individual child1 = new Individual(this.Myrand, chromosomeChild1);
-        Individual child2 = new Individual(this.Myrand, chromosomeChild2);
+        Individual child1 = new Individual(this.myRand, this.koordinatAngka);
+        Individual child2 = new Individual(this.myRand, this.koordinatAngka);
 
+        child1.chromosome = chromosomeChild1;
+        child2.chromosome = chromosomeChild2;
         for (int i = 0; i < panjangBaris; i++) {
-            for (int j = 0; j < panjangKolom; i++) {
-                if(i<=indexBarisPivot){
-                    child1.chromosome[i][j].warna = this.chromosome[i][j].warna;
-                    child2.chromosome[i][j].warna = other.chromosome[i][j].warna;
+            for (int j = 0; j < panjangKolom; j++) {
+                if (i <= indexBarisPivot) {
+                    child1.chromosome[i][j] = this.chromosome[i][j];
+                    child2.chromosome[i][j] = other.chromosome[i][j];
                 }
-                if(i>indexBarisPivot){
-                    child1.chromosome[i][j].warna = other.chromosome[i][j].warna;
-                    child2.chromosome[i][j].warna = this.chromosome[i][j].warna;
+                if (i > indexBarisPivot) {
+                    child1.chromosome[i][j] = other.chromosome[i][j];
+                    child2.chromosome[i][j] = this.chromosome[i][j];
                 }
             }
         }
-        int choose = this.Myrand.nextInt(2);
-        if(choose==0) return child1;
-        else return child2;
+        int choose = this.myRand.nextInt(2);
+        if (choose == 0)
+            return child1;
+        else
+            return child2;
     }
 
     @Override
     public int compareTo(Individual other) {
-    	if (this.fitness>other.fitness) return -1;
-        else if (this.fitness<other.fitness) return 1;
-        else return 0;
+        if (this.fitness > other.fitness)
+            return -1;
+        else if (this.fitness < other.fitness)
+            return 1;
+        else
+            return 0;
     }
 
     @Override
-	public String toString() {
-		String res = new String(this.chromosome + " " + this.printMosaic(this.chromosome) + " " + this.fitness);
-		return res;
-	}
-
-    public static String printMosaic(MosaicBox[][] chromosome){
-        String res = "";
-        for(int i=0; i<chromosome.length;i++){
-            for(int j=0;j<chromosome[0].length;j++){
-                if(i==chromosome[0].length){
-                    res += "\n";
-                }
-                else{
-                    res += chromosome[i][j] + " ";
-                }
-            }
-        }
+    public String toString() {
+        String res = new String(this.chromosome + " " + this.printArray(this.chromosome) + " " + this.fitness);
         return res;
     }
 
+    public static String printArray(String[][] chromosome) {
+        String res = "";
+        for (int i = 0; i < chromosome.length; i++) {
+            for (int j = 0; j < chromosome[0].length; j++) {
+                res += (chromosome[i][j] + " ");
+            }
+            res += '\n';
+        }
+        return res;
+    }
 }

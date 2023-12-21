@@ -1,31 +1,31 @@
-import java.util.Random;
 import java.util.ArrayList;
-import java.util.*;
+import java.util.Random;
 
 public class Population {
     public ArrayList<Individual> population;
+    KoordinatAngka[] koordinatAngka;
     private int maxPopulationSize;
     private int populationSize = 0;
     public double elitismPct;
-    int maxFitness;
+    String[][] inputMosaic;
     int sumRank = 0;
-    Random MyRand;
+    Random myRand;
 
-    public Population(Random MyRand,  int maxFitness, int maxPopulationSize,
-            double elitismPct) {
-        this.MyRand = MyRand;
+    public Population(Random myRand, String[][] inputMosaic, int maxPopulationSize, double elitismPct,
+            KoordinatAngka[] koordinatAngka) {
+        this.myRand = myRand;
         this.maxPopulationSize = maxPopulationSize;
         this.population = new ArrayList<Individual>();
         this.elitismPct = elitismPct;
-        this.maxFitness = maxFitness;
+        this.inputMosaic = inputMosaic;
+        this.koordinatAngka = koordinatAngka;
         for (int i = 1; i <= this.maxPopulationSize; i++)
             this.sumRank = this.sumRank + i;
-
     }
 
     public void randomPopulation() {
         for (int i = 0; i < this.maxPopulationSize; i++) {
-            this.addIndividual(new Individual(this.MyRand));
+            this.addIndividual(new Individual(this.myRand));
         }
     }
 
@@ -39,14 +39,14 @@ public class Population {
 
     public void computeAllFitnesses() {
         for (int i = 0; i < this.populationSize; i++) {
-            ((Individual) this.population.get(i)).setFitness(maxFitness);
+            ((Individual) this.population.get(i)).setFitness(inputMosaic, koordinatAngka, koordinatAngka.length);
         }
         this.population.sort((idv1, idv2) -> idv1.compareTo(idv2));
     }
 
     public Population getNewPopulationWElit() {
-        Population newPop = new Population(this.MyRand,  this.maxFitness, this.populationSize,
-                this.elitismPct);
+        Population newPop = new Population(this.myRand, this.inputMosaic, this.populationSize, this.elitismPct,
+                this.koordinatAngka);
         int n = (int) (this.elitismPct * this.maxPopulationSize);
         // System.out.println(n);
         // System.out.println(this.population.size());
@@ -60,29 +60,6 @@ public class Population {
     public boolean isFilled() {
         return this.maxPopulationSize == this.populationSize;
     }
-
-    /*
-     * public Individual[] selectParent() { //rank selection
-     * Individual[] parents = new Individual[2];
-     * this.population.sort((idv1,idv2) -> idv1.compareTo(idv2));
-     * int top = this.population.size()+1;
-     * for (int i=0;i<this.population.size();i++) {
-     * ((Individual)this.population.get(i)).parentProbability =
-     * (1.0*top)/this.sumRank;
-     * }
-     * for (int n = 0;n<2;n++) {
-     * int i=-1;
-     * double prob = this.MyRand.nextDouble();
-     * double sum = 0.0;
-     * do {
-     * i++;
-     * sum = sum + this.population.get(i).parentProbability;
-     * } while(sum<prob);
-     * parents[n] = this.population.get(i);
-     * }
-     * return parents;
-     * }
-     */
 
     public Individual[] selectParent() { // roulette wheel
         Individual[] parents = new Individual[2];
@@ -99,7 +76,7 @@ public class Population {
         }
         for (int n = 0; n < 2; n++) {
             int i = -1;
-            double prob = this.MyRand.nextDouble();
+            double prob = this.myRand.nextDouble();
             double sum = 0.0;
             do {
                 i++;
