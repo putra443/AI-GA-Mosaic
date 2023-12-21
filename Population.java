@@ -7,19 +7,17 @@ public class Population {
     private int maxPopulationSize;
     private int populationSize = 0;
     public double elitismPct;
-    ArrayList<Item> listOfItems;
-    int maxCapacity;
+    int maxFitness;
     int sumRank = 0;
     Random MyRand;
 
-    public Population(Random MyRand, ArrayList<Item> listOfItems, int maxCapacity, int maxPopulationSize,
+    public Population(Random MyRand,  int maxFitness, int maxPopulationSize,
             double elitismPct) {
         this.MyRand = MyRand;
         this.maxPopulationSize = maxPopulationSize;
         this.population = new ArrayList<Individual>();
         this.elitismPct = elitismPct;
-        this.listOfItems = listOfItems;
-        this.maxCapacity = maxCapacity;
+        this.maxFitness = maxFitness;
         for (int i = 1; i <= this.maxPopulationSize; i++)
             this.sumRank = this.sumRank + i;
 
@@ -41,13 +39,13 @@ public class Population {
 
     public void computeAllFitnesses() {
         for (int i = 0; i < this.populationSize; i++) {
-            ((Individual) this.population.get(i)).setFitness(listOfItems, maxCapacity);
+            ((Individual) this.population.get(i)).setFitness(maxFitness);
         }
         this.population.sort((idv1, idv2) -> idv1.compareTo(idv2));
     }
 
     public Population getNewPopulationWElit() {
-        Population newPop = new Population(this.MyRand, this.listOfItems, this.maxCapacity, this.populationSize,
+        Population newPop = new Population(this.MyRand,  this.maxFitness, this.populationSize,
                 this.elitismPct);
         int n = (int) (this.elitismPct * this.maxPopulationSize);
         // System.out.println(n);

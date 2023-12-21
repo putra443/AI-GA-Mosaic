@@ -5,6 +5,7 @@ Setiap individu memiliki kromosom biner, nilai kebugaran (fitness), dan properti
 Berisi metode untuk menetapkan nilai kebugaran, melakukan mutasi, dan crossover (crossover dua titik dilakukan).
 */
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.text.html.Option;
@@ -39,7 +40,6 @@ public class Individual implements Comparable<Individual> {
     // setFitness bikin algoritma buat cek 9 kotak radiusnya, kudu mikir jadi
     // gw tinggalin dulu
     public int setFitness(int maxFitness) {
-        int currFitness = 0;
         for (int i = 0; i < chromosome.length; i++) {
             for (int j = 0; j < this.chromosome[i].length; j++) {
                 if (this.chromosome[i][j].angka != null) {
@@ -65,18 +65,31 @@ public class Individual implements Comparable<Individual> {
                     }
                     if (counterHitam > Integer.parseInt(this.chromosome[i][j].angka)) {
                         this.chromosome[i][j].value_fitness = "-1";
-                        currFitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
+                        this.fitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
                     } else if (counterHitam < Integer.parseInt(this.chromosome[i][j].angka)) {
                         this.chromosome[i][j].value_fitness = "0";
-                        currFitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
+                        this.fitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
                     } else {
                         this.chromosome[i][j].value_fitness = "1";
-                        currFitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
+                        this.fitness += Integer.parseInt(this.chromosome[i][j].value_fitness);
                     }
                 }
             }
         }
-        return currFitness;
+        return this.fitness;
+    }
+
+    public void doMutation(){
+        for(int i=0;i<this.chromosome.length;i++){
+            for(int j=0;j<this.chromosome[0].length;j++){
+                if(this.chromosome[i][j].warna=="hitam"){
+                    this.chromosome[i][j].warna="abu";
+                }
+                else{
+                    this.chromosome[i][j].warna="hitam";
+                }
+            }
+        }
     }
 
     // buat algoritma buat crossover kaya cara yang uda di sepakatin, random angka
@@ -96,16 +109,47 @@ public class Individual implements Comparable<Individual> {
 
         for (int i = 0; i < panjangBaris; i++) {
             for (int j = 0; j < panjangKolom; i++) {
-                if(child1 )
+                if(i<=indexBarisPivot){
+                    child1.chromosome[i][j].warna = this.chromosome[i][j].warna;
+                    child2.chromosome[i][j].warna = other.chromosome[i][j].warna;
+                }
+                if(i>indexBarisPivot){
+                    child1.chromosome[i][j].warna = other.chromosome[i][j].warna;
+                    child2.chromosome[i][j].warna = this.chromosome[i][j].warna;
+                }
             }
         }
-
+        int choose = this.Myrand.nextInt(2);
+        if(choose==0) return child1;
+        else return child2;
     }
 
     @Override
     public int compareTo(Individual other) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'compareTo'");
+    	if (this.fitness>other.fitness) return -1;
+        else if (this.fitness<other.fitness) return 1;
+        else return 0;
+    }
+
+    @Override
+	public String toString() {
+		String res = new String(this.chromosome + " " + this.printMosaic(this.chromosome) + " " + this.fitness);
+		return res;
+	}
+
+    public static String printMosaic(MosaicBox[][] chromosome){
+        String res = "";
+        for(int i=0; i<chromosome.length;i++){
+            for(int j=0;j<chromosome[0].length;j++){
+                if(i==chromosome[0].length){
+                    res += "\n";
+                }
+                else{
+                    res += chromosome[i][j] + " ";
+                }
+            }
+        }
+        return res;
     }
 
 }
