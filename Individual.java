@@ -63,7 +63,7 @@ public class Individual implements Comparable<Individual> {
                 }
             }
             if (tempHitam > koordinat.angka) {
-                this.fitness = -1;
+                this.fitness += -1;
             }
             // } else if (tempHitam < koordinat.angka) {
             // this.fitness += 0;
